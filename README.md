@@ -1,6 +1,6 @@
 # toady
 
-Toady helps you build bots by providing a part-wrapper, part-engine for the puppeteer framework.
+Toady helps you build bots by providing a part-wrapper, part-engine for the [puppeteer](https://github.com/GoogleChrome/puppeteer) framework.
 
 [This](https://en.wikipedia.org/wiki/Sycophancy) is where I got the name, in case you aren't in the idiom.
 
