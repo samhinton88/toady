@@ -75,7 +75,9 @@ const logger = async (page, action, returnValue) => {
     after action of type: ${action.type}
     it returned ${returnValue ? returnValue : 'nothing'}
   `);
-}
+};
+
+await app([testProc, { type: 'close' }])(logger);
 ```
 
 Running the above should log:
@@ -99,6 +101,13 @@ const middleWare = (page, action) => {
 
   // Do the work of the middleware... 
 }
+```
+
+You can also pass a toady an array of middleware functions, and it will run them in turn.
+
+```js
+await app([testProc, { type: 'close' }])([logger, screenShotOnPageChange, someotherMiddleware]);
+
 ```
 
 ## The Proxy
