@@ -1,8 +1,8 @@
 # toady
 
-Toady helps you build bots by providing a part wrapper, part engine around the puppeteer framework.
+Toady helps you build bots by providing a part-wrapper, part-engine for the puppeteer framework.
 
-[This](https://en.wikipedia.org/wiki/Sycophancy) is where you got the name, in case you aren't familiar.
+[This](https://en.wikipedia.org/wiki/Sycophancy) is where I got the name, in case you aren't in the idiom.
 
 
 ## Installation
@@ -40,7 +40,7 @@ The engine makes use of a technique known as [inversion of control](https://en.w
 The minimum an action needs to send instructions to the Page object is a `type`, though frequently you'll want to pass along arguments too - you can do this in an array on the `args` key.
 
 ```js
-{ type: String, args: [String] }
+{ type: String, args: [String|Number|Boolean|Function] }
 ```
 
 You can send along any method call that is known by the Page and Browser objects in the Puppeteer library. I have included a number of additional helpers on top of this API.
@@ -118,10 +118,11 @@ const instance = await makePage(MyPage, false);
 const app(instance); // <-- will now understand { type: 'goHomeAndSayWhy', args: ["I'm tired"] }
 
 ```
+The page object will be available to you at `this.page`.
 
 ## Passing Return values between actions 
 
-It may be useful to pass some return value which results from an action to the next action.
+It may be useful to pass the return value from one action to the arguments of the next.
 
 If I want my toady to find some href from a page and then go to it, I could pass in a custom page class with this method:
 
