@@ -1,6 +1,8 @@
 # toady
 
-Toady is a wrapper around the puppeteer framework for making bots, named after [this](https://en.wikipedia.org/wiki/Sycophancy).
+Toady helps you build bots by providing a part wrapper, part engine around the puppeteer framework.
+
+[This](https://en.wikipedia.org/wiki/Sycophancy) is where you got the name, in case you aren't familiar.
 
 
 ## Installation
@@ -33,24 +35,24 @@ const toady = require('toady');
 })();
 
 ```
+The engine makes use of a technique known as [inversion of control](https://en.wikipedia.org/wiki/Inversion_of_control), to pass sequences of commands to the Page object.
 
-## The Proxy
-
-You can add commands of your own, on top of those I've added to the regular Puppeteer API.
+The minimum an action needs to send instructions to the Page object is a `type`, though frequently you'll want to pass along arguments too - you can do this in an array on the `args` key.
 
 ```js
-class MyPage extends proxy {
-
-  goHomeAndSayWhy = reason => {
-    this.page.goto('https://www.mypage.io');
-    this.log(`Because ${reason}`);
-  }
-}
-
-const instance = await makePage(MyPage, false);
-const app(instance); // <-- will now understand { type: 'goHomeAndSayWhy', args: ["I'm tired"] }
-
+{ type: String, args: [String] }
 ```
+
+You can send along any method call that is known by the Page and Browser objects in the Puppeteer library. I have included a number of additional helpers on top of this API.
+
+For instance: 
+```js
+// this:
+[{ type: 'waitFor', args: ['.some-selector'] }, { type: 'click', args: ['.some-selector'] }]
+// can be achieved with this:
+[{ type: 'awaitAndType', args: ['.some-selector'] }]
+```
+
 
 ## Middleware 
 
@@ -87,6 +89,8 @@ Running the above should log:
 
 It may make sense for your toady to trigger middleware for particular actions only.
 
+A reasonable way of achieving this might be like this:
+
 ```js
 const triggerAction = { type: 'goto', args: ['https://whatever.io'], signal: 'do middleware!' }
 
@@ -96,3 +100,47 @@ const middleWare = (page, action) => {
   // Do the work of the middleware... 
 }
 ```
+
+## The Proxy
+
+You can add commands of your own, on top of those I've added to the regular Puppeteer API.
+
+```js
+class MyPage extends proxy {
+
+  goHomeAndSayWhy = reason => {
+    this.page.goto('https://www.mypage.io');
+    this.log(`Because ${reason}`);
+  }
+}
+
+const instance = await makePage(MyPage, false);
+const app(instance); // <-- will now understand { type: 'goHomeAndSayWhy', args: ["I'm tired"] }
+
+```
+
+## Passing Return values between actions 
+
+It may be useful to pass some return value which results from an action to the next action.
+
+If I want my toady to find some href from a page and then go to it, I could pass in a custom page class with this method:
+
+```js
+class MyPage extends proxy {
+
+  getLinkHref = selector => {
+    this.page.evaluate(
+      // logic to get href
+    , selector)
+  }
+}
+```
+And include in some sequence:
+```js
+const proc = [
+  { type: 'getLinkHref', args:['#some-id'], shouldReturn: true},
+  { type: 'goto' args: [] }  
+] 
+```
+Because I pass in a `shouldReturn` key, my toady will pass the href collected from the first action, and push it into the arguments of the second.
+
