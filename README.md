@@ -51,3 +51,17 @@ const instance = await makePage(MyPage, false);
 const app(instance); // <-- will now understand { type: 'goHomeAndSayWhy', args: ["I'm tired"] }
 
 ```
+
+## Middleware 
+
+```js
+const logger = async (page, action, returnValue) => {
+  const currentUrl = await page.url();
+
+  console.log(`
+    Page is at: ${currentUrl}
+    after action of type: ${action.type}
+    it returned ${returnValue ? returnValue : 'nothing'}
+  `);
+}
+```

@@ -1,5 +1,5 @@
 export default (pageObject) => (pageImplementation) => async (instruction, runPre, runPost) => {
-    console.log(pageObject);
+
     // loop over processes
     for (let i=0; i<pageImplementation.length; i++) {
       const action = pageImplementation[i];
