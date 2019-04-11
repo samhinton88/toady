@@ -1,6 +1,6 @@
 {
   "name": "toady",
-  "version": "1.0.02",
+  "version": "1.0.3",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -11,12 +11,12 @@
   "devDependencies": {
     "@babel/cli": "^7.1.5",
     "@babel/core": "^7.1.5",
-    "@babel/polyfill": "^7.0.0",
     "@babel/preset-env": "^7.1.5"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "puppeteer": "^1.14.0"
+    "puppeteer": "^1.14.0",
+    "@babel/polyfill": "^7.0.0"
   }
 }
