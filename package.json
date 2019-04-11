@@ -1,17 +1,18 @@
 {
   "name": "toady",
-  "version": "1.0.5",
+  "version": "1.0.52",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "build": "babel src -d lib",
     "dry-run": "npm run build && node index.js"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.5",
     "@babel/core": "^7.1.5",
-    "@babel/preset-env": "^7.1.5"
+    "@babel/preset-env": "^7.1.5",
+    "jest": "^24.7.1"
   },
   "author": "",
   "license": "ISC",
