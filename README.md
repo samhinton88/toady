@@ -47,9 +47,12 @@ You can send along any method call that is known by the Page and Browser objects
 For instance: 
 ```js
 // this:
-[{ type: 'waitFor', args: ['.some-selector'] }, { type: 'click', args: ['.some-selector'] }]
+[
+  { type: 'waitFor', args: ['.some-selector'] }, 
+  { type: 'click', args: ['.some-selector'] }
+]
 // can be achieved with this:
-[{ type: 'awaitAndType', args: ['.some-selector'] }]
+[{ type: 'awaitAndClick', args: ['.some-selector'] }]
 ```
 
 
