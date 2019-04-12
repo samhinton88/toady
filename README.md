@@ -32,7 +32,7 @@ const toady = require('toady');
 })();
 
 ```
-`makePage` takes a <a name="proxy">class which extends Proxy</a> as its first argument, and a boolean to set whether or not it should run headlessly as its second.
+`makePage` takes a [class which extends Proxy](#proxy) as its first argument, and a boolean to set whether or not it should run headlessly as its second.
 
 `base` then consumes that page instance into an engine which makes use of a technique known as [inversion of control](https://en.wikipedia.org/wiki/Inversion_of_control), to pass sequences of commands (actions) to the Page object.
 
@@ -113,7 +113,7 @@ await app([testProc, { type: 'close' }])([logger, screenShotOnPageChange, someot
 
 ```
 
-## [The Proxy](#proxy)
+## <a name="proxy">The Proxy</a>
 
 You can add commands of your own on top of those I've added to the regular Puppeteer API. 
 
