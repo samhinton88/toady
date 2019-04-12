@@ -18,7 +18,7 @@ Send a toady to the [BBC homepage](https://www.bbc.co.uk/):
 const toady = require('toady');
 
 (async () => {
-    const { makePage, base, Proxy } = toady;
+    const { makePage, base, proxy } = toady;
 
     const testProc = { type: 'goto', args: ['https://www.bbc.co.uk/'] };
     
@@ -32,7 +32,7 @@ const toady = require('toady');
 })();
 
 ```
-`makePage` takes a [class which extends Proxy](#proxy) as its first argument, and a boolean to set whether or not it should run headlessly as its second.
+`makePage` takes a [class which extends proxy](#proxy) as its first argument, and a boolean to set whether or not it should run headlessly as its second.
 
 `base` then consumes that page instance into an engine which makes use of a technique known as [inversion of control](https://en.wikipedia.org/wiki/Inversion_of_control), to pass sequences of commands (actions) to the Page object.
 
