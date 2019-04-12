@@ -1,4 +1,4 @@
-export default (pageObject) => (pageImplementation) => async (instruction, runPre, runPost) => {
+module.exports = (pageObject) => (pageImplementation) => async (instruction, runPre, runPost) => {
 
     // loop over processes
     for (let i=0; i<pageImplementation.length; i++) {

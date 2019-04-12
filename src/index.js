@@ -1,10 +1,9 @@
-import '@babel/polyfill';
-import base from './engine';
-import proxy from './proxy';
-import makePage from './helpers';
+const base = require('./engine');
+const Proxy = require('./proxy');
+const makePage = require('./helpers')
 
 module.exports = {
     base,
-    proxy,
+    Proxy,
     makePage
 }

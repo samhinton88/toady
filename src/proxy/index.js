@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer';
+const puppeteer = require('puppeteer');
 
 class PageProxy {
   static async build(Pageclass, headless=false, log) {
@@ -81,4 +81,4 @@ class PageProxy {
   }
 }
 
-export default PageProxy;
+module.exports = PageProxy;
