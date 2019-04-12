@@ -22,7 +22,7 @@ const toady = require('toady');
 
     const testProc = { type: 'goto', args: ['https://www.bbc.co.uk/'] };
     
-    class BBCPage extends Proxy {};
+    class BBCPage extends PageProxy {};
     
     const instance = await makePage(BBCPage, false);
     
@@ -32,7 +32,7 @@ const toady = require('toady');
 })();
 
 ```
-`makePage` takes a [class which extends proxy](#proxy) as its first argument, and a boolean to set whether or not it should run headlessly as its second.
+`makePage` takes a [class which extends PageProxy](#proxy) as its first argument, and a boolean to set whether or not it should run headlessly as its second.
 
 `base` then consumes that page instance into an engine which makes use of a technique known as [inversion of control](https://en.wikipedia.org/wiki/Inversion_of_control), to pass sequences of commands (actions) to the Page object.
 
@@ -113,12 +113,12 @@ await app([testProc, { type: 'close' }])([logger, screenShotOnPageChange, someot
 
 ```
 
-## <a name="proxy">The Proxy</a>
+## <a name="proxy">The PageProxy</a>
 
 You can add commands of your own on top of those I've added to the regular Puppeteer API. 
 
 ```js
-class MyPage extends proxy {
+class MyPage extends PageProxy {
 
   goHomeAndSayWhy = reason => {
     this.page.goto('https://www.mypage.io');
@@ -139,7 +139,7 @@ It may be useful to pass the return value from one action to the arguments of th
 If I want my toady to find some href from a page and then go to it, I could pass in a custom page class with this method:
 
 ```js
-class MyPage extends proxy {
+class MyPage extends PageProxy {
 
   getLinkHref = selector => {
     return this.page.evaluate(
