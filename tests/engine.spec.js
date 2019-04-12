@@ -12,11 +12,11 @@ const logger = async (page, action, returnValue) => {
 
 
 const build = async () => { 
-    const { makePage, base, proxy } = toady;
+    const { makePage, base, Proxy } = toady;
     
     const testProc = { type: 'goto', args: ['https://www.bbc.co.uk/radio4'] };
     
-    class TestPage extends proxy {};
+    class TestPage extends Proxy {};
     
     const instance = await makePage(TestPage, false);
     
