@@ -18,7 +18,7 @@ Send a toady to the [BBC homepage](https://www.bbc.co.uk/):
 const toady = require('toady');
 
 (async () => {
-    const { makePage, base, Proxy } = toady;
+    const { makePage, base, PageProxy } = toady;
 
     const testProc = { type: 'goto', args: ['https://www.bbc.co.uk/'] };
     
