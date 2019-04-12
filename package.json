@@ -1,7 +1,11 @@
 {
   "name": "toady",
-  "version": "1.0.53",
+  "version": "1.0.54",
   "description": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samhinton88/toady"
+  },
   "main": "lib/index.js",
   "scripts": {
     "test": "jest",
