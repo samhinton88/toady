@@ -2,9 +2,6 @@
 
 Toady helps you build bots by providing a part-wrapper, part-engine for the [puppeteer](https://github.com/GoogleChrome/puppeteer) framework.
 
-[This](https://en.wikipedia.org/wiki/Sycophancy) is where I got the name, in case you aren't in the idiom.
-
-
 ## Installation
 
 With npm:
@@ -35,7 +32,9 @@ const toady = require('toady');
 })();
 
 ```
-The engine makes use of a technique known as [inversion of control](https://en.wikipedia.org/wiki/Inversion_of_control), to pass sequences of commands to the Page object.
+`makePage` takes a class as its first argument, and a boolean to set whether or not it should run headlessly as its second.
+
+`base` then consumes that page instance into an engine which makes use of a technique known as [inversion of control](https://en.wikipedia.org/wiki/Inversion_of_control), to pass sequences of commands (actions) to the Page object.
 
 The minimum an action needs to send instructions to the Page object is a `type`, though frequently you'll want to pass along arguments too - you can do this in an array on the `args` key.
 
@@ -86,12 +85,11 @@ Running the above should log:
       Page is at: https://www.bbc.co.uk/radio4
       after action of type: goto
       it returned nothing
-
 ```
 
 It may make sense for your toady to trigger middleware for particular actions only.
 
-A reasonable way of achieving this might be like this:
+A reasonable way of achieving this might be:
 
 ```js
 const triggerAction = { type: 'goto', args: ['https://whatever.io'], signal: 'do middleware!' }
@@ -100,7 +98,9 @@ const middleWare = (page, action) => {
   if(action.signal !== 'do middleware!') return;
 
   // Do the work of the middleware... 
-}
+};
+
+await app(processArray)(middleWare);
 ```
 
 You can also pass a toady an array of middleware functions, and it will run them in turn.
@@ -139,7 +139,7 @@ If I want my toady to find some href from a page and then go to it, I could pass
 class MyPage extends proxy {
 
   getLinkHref = selector => {
-    this.page.evaluate(
+    return this.page.evaluate(
       // logic to get href
     , selector)
   }
