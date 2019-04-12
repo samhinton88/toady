@@ -18,11 +18,11 @@ Send a toady to the [BBC homepage](https://www.bbc.co.uk/):
 const toady = require('toady');
 
 (async () => {
-    const { makePage, base, proxy } = toady;
+    const { makePage, base, Proxy } = toady;
 
     const testProc = { type: 'goto', args: ['https://www.bbc.co.uk/'] };
     
-    class BBCPage extends proxy {};
+    class BBCPage extends Proxy {};
     
     const instance = await makePage(BBCPage, false);
     
