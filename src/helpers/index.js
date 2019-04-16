@@ -1,3 +1,3 @@
-module.exports = async (className, headless, log) => {
-    return await className.build(className, headless, log)
+module.exports = async (className, options, log) => {
+    return await className.build(className, options, log)
 }

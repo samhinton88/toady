@@ -1,13 +1,27 @@
 const puppeteer = require('puppeteer');
 
 class PageProxy {
-  static async build(Pageclass, headless=false, log) {
+  static async build(Pageclass, options, log) {
+    let headless, opts;
+    if( typeof options === 'boolean' ) {
+      opts = {};
+      headless = options;
+    } else {
+      opts = options;
+      headless = options.headless;
+    };
+
+
+
+    const { 
+      width = 1000, height = 900, positionX = 0, positionY = 0
+    } = opts
 
     const browser = await puppeteer.launch({
       headless,
       args: [
-        '--window-position=0,0',
-        '--window-size=1000,900'
+        `--window-position=${positionX},${positionY}`,
+        `--window-size=${width},${height}`
       ]
     });
 
@@ -15,7 +29,7 @@ class PageProxy {
 
     const puppeteerPage = await context.newPage();
 
-    await puppeteerPage.setViewport({ width: 1000, height: 900 });
+    await puppeteerPage.setViewport({ width, height });
 
     const myPage = new Pageclass(puppeteerPage, log);
 
