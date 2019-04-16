@@ -1,6 +1,6 @@
 {
   "name": "toady",
-  "version": "1.0.55",
+  "version": "1.0.57",
   "description": "",
   "repository": {
     "type": "git",
@@ -8,8 +8,7 @@
   },
   "main": "src/index.js",
   "scripts": {
-    "test": "jest",
-    "dry-run": "npm run build && node index.js"
+    "test": "jest"
   },
   "devDependencies": {
     "jest": "^24.7.1"
