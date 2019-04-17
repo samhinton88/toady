@@ -1,0 +1,3 @@
+const injectState = (state) => (middleWare) => {
+
+}

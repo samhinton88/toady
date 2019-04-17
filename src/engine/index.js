@@ -1,8 +1,10 @@
-module.exports = (pageObject) => (pageImplementation) => async (instruction, runPre, runPost) => {
-
+module.exports = (pageObject) => (pageImplementation, initState) => async (instruction, runPre, runPost) => {
+  let state = initState || {}, newState;
     // loop over processes
     for (let i=0; i<pageImplementation.length; i++) {
       const action = pageImplementation[i];
+
+      if (!action.args) action.args = [];
   
       // TODO: handle pre hooks or middleware [runPre]
   
@@ -37,13 +39,21 @@ module.exports = (pageObject) => (pageImplementation) => async (instruction, run
   
         for(let j=0; j<instruction.length; j++) {
   
-          await instruction[j](pageObject, action, output);
+          newState = await instruction[j](state)(pageObject, action, output);
+
+          if(newState) {
+            state = newState;
+          }
           
         }
   
       } else {
   
-        await instruction(pageObject, action, output);
+        newState = await instruction(state)(pageObject, action, output);
+
+        if(newState) {
+          state = newState
+        }
   
       }
       // TODO handle post hooks or middleware [runPost]

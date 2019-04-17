@@ -63,13 +63,13 @@ Additional functions may be passed into your toady and act as middleware.
 Toady middleware takes the signature:
 
 ```js
-const middleWare = (pageInstance, action, returnValue) => {};
+const middleWare = state => async (pageInstance, action, returnValue) => {};
 ```
 
 The functions will be called immediately after each action.
 
 ```js
-const logger = async (page, action, returnValue) => {
+const logger = () => async (page, action, returnValue) => {
   const currentUrl = await page.url();
 
   console.log(`
@@ -97,7 +97,7 @@ A reasonable way of achieving this might be:
 ```js
 const triggerAction = { type: 'goto', args: ['https://whatever.io'], signal: 'do middleware!' }
 
-const middleWare = (page, action) => {
+const middleWare = () => (page, action) => {
   if(action.signal !== 'do middleware!') return;
 
   // Do the work of the middleware... 
@@ -111,6 +111,35 @@ You can also pass a toady an array of middleware functions, and it will run them
 ```js
 await app([testProc, { type: 'close' }])([logger, screenShotOnPageChange, someotherMiddleware]);
 
+```
+Through the `state` parameter, we have access to an object on which we can store data as the toady progresses through the sequence.
+
+Middleware, therefore, becomes the primary way we can read and update any concept of state we hold on to as our toady processes its instructions.
+
+```js
+const storeUrlAfterNav = state => async (page, action) => {
+  if(action.type !== 'goto') return;
+  
+  const url = await page.url();
+
+  if(!state.urls) {
+    return { ...state, urls: [url] };
+  }
+
+  return { ...state, urls: [...state.urls, url] };
+};
+```
+
+We can give a toady an initial state, which avoids us having to check state shape in the body of the middleware as I have done above.
+
+```js
+const initialState = { urls: [] };
+
+const storeUrlAfterNav = s => async (p, a) => (
+  a.type === 'goto' && { ...s, urls: [...s.urls, await p.url()] }
+);
+
+await app(steps, initialState)([storeUrlAfterNav]);
 ```
 
 ## <a name="proxy">The PageProxy</a>
@@ -130,7 +159,7 @@ const instance = await makePage(MyPage, false);
 const app(instance); // <-- will now understand { type: 'goHomeAndSayWhy', args: ["I'm tired"] }
 
 ```
-The page object will be available to you at `this.page`.
+The page object will be available to you within your class at `this.page`.
 
 ## Passing Return values between actions 
 
