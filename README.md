@@ -1,3 +1,4 @@
+[![npm version](https://badge.fury.io/js/toady.svg)](https://badge.fury.io/js/toady)
 # toady
 
 Toady helps you build bots by providing a part-wrapper, part-engine for the [puppeteer](https://github.com/GoogleChrome/puppeteer) framework.
