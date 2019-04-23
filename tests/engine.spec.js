@@ -14,6 +14,12 @@ const storeUrl = state => async (page, { signal }) => {
   return { ...state, url: await page.url() }
 }
 
+const goToGoogle = state => async(_p, { signal }, _rv, updateActions) => {
+  if(signal !== 'goToGoogle') return;
+  updateActions([{ type: 'goto', args: ['http://google.com'] }])
+
+}
+
 const logger = (state) => async (page, action, returnValue) => {
     const currentUrl = await page.url();
   
@@ -34,7 +40,7 @@ describe('toady',() => {
   const testProc = { type: 'goto', args: ['https://www.bbc.co.uk/radio4'] };
 
   beforeEach(async() => {
-    instance = await makePage(TestPage, { headless: true });
+    instance = await makePage(TestPage, { headless: false });
     app = base(instance);
   });
 
@@ -88,6 +94,30 @@ describe('toady',() => {
         ], initState)(storeUrl);
       
       expect(initState).toEqual({ });
+    });
+
+    fit('can extend the action array', async () => {
+      await app([
+        testProc, 
+        { type: 'waitFor', args: [1], signal: 'goToGoogle' },
+        { type: 'waitFor', args: [1], signal: 'storeUrl' },
+        { type: 'waitFor', args: [1], signal: 'end' },
+        { type: 'close', args: [] }
+      ], initState)
+      (
+        [
+          goToGoogle, 
+          storeUrl,
+          (
+            (state) => (_, { signal }) => {
+              if(signal !== 'end') return;
+              
+              expect(state.url).toEqual("http://google.com");
+          })
+        ]
+      );
+   
+
     })
   })
 
