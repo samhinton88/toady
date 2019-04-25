@@ -15,9 +15,9 @@ With npm:
 
 ## Anatomy
 
-A toady is born from Actions, State and Middleware.
+A toady is born from *Actions*, *State* and *Middleware*.
 
-Send a toady to the [BBC homepage](https://www.bbc.co.uk/):
+But before we get into that, let's send a toady to the [BBC homepage](https://www.bbc.co.uk/):
 
 ```js
 const toady = require('toady');
