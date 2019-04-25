@@ -236,7 +236,7 @@ You can see that middleware can serve as a way to change the flow of your Toady,
 
 ```js
 const scrapeIfResourceExists = s => async (p, _a, _o, update) => {
-  if (await p.url === '404 - page not found') update(actionsIf404);return;
+  if (await p.title() === '404 - page not found') update(actionsIf404);return;
 
   update(actionsIfNot404);
 }
