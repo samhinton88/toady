@@ -1,7 +1,9 @@
 [![npm version](https://badge.fury.io/js/toady.svg)](https://badge.fury.io/js/toady)
 # toady
 
-Toady helps you build bots by providing a part-wrapper, part-engine for the [puppeteer](https://github.com/GoogleChrome/puppeteer) framework.
+Is a small framework, which consumes google's [puppeteer](https://github.com/GoogleChrome/puppeteer) library, to simulate user interaction in a more involved manner.
+
+It is not an homage to a character from a certain Australian soap opera of my youth.
 
 ## Installation
 
@@ -11,7 +13,9 @@ With npm:
 > npm install --save toady
 ```
 
-## Usage
+## Anatomy
+
+A toady is born from Actions, State and Middleware.
 
 Send a toady to the [BBC homepage](https://www.bbc.co.uk/):
 
@@ -20,28 +24,30 @@ const toady = require('toady');
 
 (async () => {
     const { makePage, base, PageProxy } = toady;
-
     const testProc = { type: 'goto', args: ['https://www.bbc.co.uk/'] };
     
     class BBCPage extends PageProxy {};
     
     const instance = await makePage(BBCPage, false);
-    
     const app = base(instance);
     
     await app([testProc, { type: 'close' }])();
 })();
 
 ```
-`makePage` takes a [class which extends PageProxy](#proxy) as its first argument, and a boolean to set whether or not it should run headlessly as its second.
+`makePage` takes a [class which extends PageProxy](#proxy) as its first argument, and either a boolean  or an object as its second. When the second argument is a `boolean`, it indicates whether or not the toady should run headlessly. This function returns our puppeteer page object.
+
+ NB: A call to `makePage` is asynchronous and returns a promise, hence the use of the async / await pattern.
 
 `base` then consumes that page instance into an engine which makes use of a technique known as [inversion of control](https://en.wikipedia.org/wiki/Inversion_of_control), to pass sequences of commands (actions) to the Page object.
 
 ## Actions
 
-You can think of toady actions as being a little like HTML, except that, rather than describing the structure of of a page, they describe the structure of user decisions through time.
+You can think of toady actions as being a little like HTML, but rather than describing the structure of of a page, they describe the structure of user decisions through time.
 
-The minimum an action needs to send instructions to the Page object is a `type`, though frequently you'll want to pass along arguments too - you can do this in an array on the `args` key.
+The minimum an action needs to send instructions to the Page object is a `type`, which corresponds to a method name which the page / browser instance can respond to. 
+
+Frequently you'll want to pass along arguments too - you can do this in an array on the `args` key.
 
 ```js
 { type: String, args: [String|Number|Boolean|Function] }
@@ -59,6 +65,25 @@ For instance:
 // can be achieved with this:
 [{ type: 'awaitAndClick', args: ['.some-selector'] }]
 ```
+
+The structure of these actions is intentionally rustic, and a dev might wish to wrap these objects into functions to return them.
+
+```js
+const linger = () => ({ type: 'waitFor', args: [5000] })
+const goTo = url => ({ type: 'goto', args: [url]})
+
+const logIn = ({ user, password }) => (
+  [
+    { type: 'awaitAndType', args:[userNameSelector, user] },
+    { type: 'awaitAndType', args:[passwordSelector, password] },
+    { type: 'awaitAndClick', args:[submitSelector] },
+  ]
+);
+
+await base([goTo(myUrl), ...logIn({ password: 'password', user: 'me123' }), linger()])();
+```
+
+But I'm not in the habit of telling people how to code if it's not necessary.
 
 ## State 
 
@@ -197,7 +222,8 @@ const googleThenComeBack = state => (_p, _a, _o, updateActionCb) => {
 			{ type: 'awaitAndType', args: [googleSearchSelector, termToSearch] },
 			{ type: 'waitFor', args: [1], signal: 'scrapeResultsPage' },
 			{ type: 'goto', args: ['https://myhomepage.com'] }
-		]);
+    ]
+  );
 };
 ```
 We can see that middleware can navigate by calling methods on the page object directly, but this would break the separation of concerns. 
@@ -215,6 +241,26 @@ const scrapeIfResourceExists = s => async (p, _a, _o, update) => {
   update(actionsIfNot404);
 }
 ```
+
+Here's an example that demos a kind of recursive pattern:
+
+```js
+const scrapeAllATags = s => async (p, a, _, update) => {
+  if(a.signal !== 'scrapeAllATags') return;
+  const hrefs = await p.evaluate(() => [...document.querySelectorAll('a').map(t => t.href)]);
+  const actions = hrefs.reduce((acc, href) => {
+    return [...acc, 
+      { type: 'goto', args: [href] },
+      { type: 'waitFor', args: [1], signal: 'scrapeAllATags' }
+    ]
+  }, []);
+
+  update(actions);
+
+  return { ...s, hrefs: [...s.hrefs, ...hrefs] };
+}
+```
+
 
 ## <a name="proxy">The PageProxy</a>
 
