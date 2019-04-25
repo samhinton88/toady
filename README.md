@@ -84,7 +84,7 @@ const middleWare = state => async (pageInstance, action, returnValue, addActions
 };
 ```
 
-The functions will be called immediately after each action, the order that they are passed.
+The functions will be called immediately after each action, in the order that they are passed.
 
 ```js
 const logger = () => async (page, action, returnValue) => {
@@ -188,13 +188,21 @@ const googleThenComeBack = state => (_p, _a, _o, updateActionCb) => {
 		]);
 };
 ```
-
 We can see that middleware can navigate by calling methods on the page object directly, but this would break the separation of concerns. 
 
 By using the `updateActionCb` we are injecting actions into the normal flow, recording them as part of the history, and maintaining a separation between the _structure_ of our flow through an app and the _derived logic_ that we are applying to it.
 
 You could think of the first approach as being like our middleware-mind engaging in day-dreaming, its thoughts and decisions not being _acted on_ insofar as that is understood by Toady.
 
+You can see that middleware can serve as a way to change the flow of your Toady, based on logical gates:
+
+```js
+const scrapeIfResourceExists = s => async (p, _a, _o, update) => {
+  if (await p.url === '404 - page not found') update(actionsIf404);return;
+
+  update(actionsIfNot404);
+}
+```
 
 ## <a name="proxy">The PageProxy</a>
 
