@@ -37,6 +37,10 @@ const toady = require('toady');
 
 `base` then consumes that page instance into an engine which makes use of a technique known as [inversion of control](https://en.wikipedia.org/wiki/Inversion_of_control), to pass sequences of commands (actions) to the Page object.
 
+## Actions
+
+You can think of toady actions as being a little like HTML, except that, rather than describing the structure of of a page, they describe the structure of user decisions through time.
+
 The minimum an action needs to send instructions to the Page object is a `type`, though frequently you'll want to pass along arguments too - you can do this in an array on the `args` key.
 
 ```js
@@ -56,18 +60,31 @@ For instance:
 [{ type: 'awaitAndClick', args: ['.some-selector'] }]
 ```
 
+## State 
+
+Toady carries a state object with it on its journey, it's best described in conjuction with Toady middleware. 
 
 ## Middleware 
 
-Additional functions may be passed into your toady and act as middleware.
+You can think of middleware as the mind of the user, inspecting elements, making assumptions and making decisions.
 
-Toady middleware takes the signature:
+We'll see that actions are the outcome of those decisions.
+
+Middleware is passed into the final call as either a single function or an array of functions.
 
 ```js
-const middleWare = state => async (pageInstance, action, returnValue) => {};
+await myToady(myActions)(myMiddleware); // myMiddleware could be an array or a single function
 ```
 
-The functions will be called immediately after each action.
+Middleware has this signature:
+
+```js
+const middleWare = state => async (pageInstance, action, returnValue, addActionsCb) => {
+  // whatever you want to acheive with the middleware.
+};
+```
+
+The functions will be called immediately after each action, the order that they are passed.
 
 ```js
 const logger = () => async (page, action, returnValue) => {
@@ -82,7 +99,6 @@ const logger = () => async (page, action, returnValue) => {
 
 await app([testProc, { type: 'close' }])(logger);
 ```
-
 Running the above should log:
 
 ```shell
@@ -104,18 +120,19 @@ const middleWare = () => (page, action) => {
   // Do the work of the middleware... 
 };
 
-await app(processArray)(middleWare);
+await app([triggerAction])(middleWare);
 ```
 
-You can also pass a toady an array of middleware functions, and it will run them in turn.
+Through the `state` parameter, we have access to the state object.
 
-```js
-await app([testProc, { type: 'close' }])([logger, screenShotOnPageChange, someotherMiddleware]);
+If the middleware function returns a value, that value will replace the state object being carried along by Toady.
 
-```
-Through the `state` parameter, we have access to an object on which we can store data as the toady progresses through the sequence.
 
-Middleware, therefore, becomes the primary way we can read and update any concept of state we hold on to as our toady processes its instructions.
+
+
+Middleware, therefore, becomes the primary way we can read and update any concept of state we hold on to as our toady processes its instructions. 
+
+Updates to state should be immutable, and follow a reducer-like pattern which will be familiar to the users of the popular Redux state management library.
 
 ```js
 const storeUrlAfterNav = state => async (page, action) => {
@@ -131,7 +148,7 @@ const storeUrlAfterNav = state => async (page, action) => {
 };
 ```
 
-We can give a toady an initial state, which avoids us having to check state shape in the body of the middleware as I have done above.
+We can give a toady an initial state, which avoids us having to check state shape in the body of the middleware as I have done above:
 
 ```js
 const initialState = { urls: [] };
@@ -142,6 +159,42 @@ const storeUrlAfterNav = s => async (p, a) => (
 
 await app(steps, initialState)([storeUrlAfterNav]);
 ```
+### Using Middleware to Add Actions
+
+Middleware is able to add to the flow of actions through a callback which is the last argument in the middleware signature.
+
+You might be tempted to handle the addition of user interactions using the middleware's access to the page object directly, however this is not the intended approach.
+
+```js
+//bad
+const googleThenComeBack = state => async (pageObject, action, output) => {
+	const termToSearch = state.termIPickedUpEarlier;
+	await pageObject.goto('http://google.com');
+	await pageObject.waitFor(googleSearchSelector);
+	await pageObject.type(googleSearchSelector, termToSearch);
+	await pageObject.myMethodToScrapeResultsPage();
+	await pageObject.goto('https://www.myhomepage.com');
+}
+
+// good
+const googleThenComeBack = state => (_p, _a, _o, updateActionCb) => {
+	const termToSearch = state.termIPickedUpEarlier;
+	updateActionCb(
+		[
+			{ type: 'goto', args: ['http://google.com'] },
+			{ type: 'awaitAndType', args: [googleSearchSelector, termToSearch] },
+			{ type: 'waitFor', args: [1], signal: 'scrapeResultsPage' },
+			{ type: 'goto', args: ['https://myhomepage.com'] }
+		]);
+};
+```
+
+We can see that middleware can navigate by calling methods on the page object directly, but this would break the separation of concerns. 
+
+By using the `updateActionCb` we are injecting actions into the normal flow, recording them as part of the history, and maintaining a separation between the _structure_ of our flow through an app and the _derived logic_ that we are applying to it.
+
+You could think of the first approach as being like our middleware-mind engaging in day-dreaming, its thoughts and decisions not being _acted on_ insofar as that is understood by Toady.
+
 
 ## <a name="proxy">The PageProxy</a>
 
