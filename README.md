@@ -163,6 +163,18 @@ await app(steps, initialState)([storeUrlAfterNav]);
 
 Middleware is able to add to the flow of actions through a callback which is the last argument in the middleware signature.
 
+An array of actions passed to the callback will be inserted into the sequence of actions, meaning that, once any additional actions are carried out, the engine will return to where it left off in the original sequence.
+
+```js
+// given that:
+const originalActions = [a1, a2, a3, a4, a5, a];
+
+cb([b1, b2, b3])
+
+// will result in:
+[a1, a2, a3, ...[a, a, a], a4, a5, a];
+```
+
 You might be tempted to handle the addition of user interactions using the middleware's access to the page object directly, however this is not the intended approach.
 
 ```js
