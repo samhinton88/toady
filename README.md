@@ -167,12 +167,12 @@ An array of actions passed to the callback will be inserted into the sequence of
 
 ```js
 // given that:
-const originalActions = [a1, a2, a3, a4, a5, a];
+const originalActions = [a1, a2, a3, a4, a5, a6];
 
 cb([b1, b2, b3])
 
 // will result in:
-[a1, a2, a3, ...[a, a, a], a4, a5, a];
+[a1, a2, a3, ...[b1, b2, b3], a4, a5, a6];
 ```
 
 You might be tempted to handle the addition of user interactions using the middleware's access to the page object directly, however this is not the intended approach.
