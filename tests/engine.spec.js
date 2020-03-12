@@ -44,6 +44,10 @@ describe('toady',() => {
     app = base(instance);
   });
 
+  afterAll(async() => {
+    instance && await instance.close();
+  })
+
   describe('middleware', () => {
     it('has access to state', async () => {
       await app([
@@ -96,7 +100,7 @@ describe('toady',() => {
       expect(initState).toEqual({ });
     });
 
-    fit('can extend the action array', async () => {
+    it('can extend the action array', async () => {
       await app([
         testProc, 
         { type: 'waitFor', args: [1], signal: 'goToGoogle' },
@@ -116,9 +120,36 @@ describe('toady',() => {
           })
         ]
       );
-   
+    });
 
-    })
-  })
+    it('can accept functions as actions', async () => {
+      const ask = page =>  predicate => (paths) => {
+        const signal = predicate(page);
+        return paths[signal]
+      };
 
-})
+      const mock = jest.fn();
+      const middlewareMock = jest.fn();
+      const action = [{ type: 'waitFor', args:[1], signal: 'hello' }];
+
+      const decide = ask(instance)((pg) => { 
+        mock(pg)
+        return 'result'
+      });
+
+      await app([
+        (i) => {
+          return decide({ result: action }); 
+        },
+        { type: 'waitFor', args: [1], signal: 'end' },
+      ])(
+        () => (_,{ signal }) => {
+          if(signal !== 'hello') return;
+          middlewareMock()
+        });
+
+      expect(mock).toHaveBeenCalled();
+      expect(middlewareMock).toHaveBeenCalled()
+    });
+  });
+});
