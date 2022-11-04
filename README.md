@@ -1,10 +1,6 @@
 [![npm version](https://badge.fury.io/js/toady.svg)](https://badge.fury.io/js/toady)
 # toady
 
-Is a small framework, which consumes google's [puppeteer](https://github.com/GoogleChrome/puppeteer) library, to simulate user interaction in a more involved manner.
-
-It is not an homage to a character from a certain Australian soap opera of my youth.
-
 ## Installation
 
 With npm:
@@ -16,8 +12,6 @@ With npm:
 ## Anatomy
 
 A toady is born from *Actions*, *State* and *Middleware*.
-
-But before we get into that, let's send a toady to the [BBC homepage](https://www.bbc.co.uk/):
 
 ```js
 const toady = require('toady');
@@ -36,10 +30,6 @@ const toady = require('toady');
 
 ```
 `makePage` takes a [class which extends PageProxy](#proxy) as its first argument, and either a boolean  or an object as its second. When the second argument is a `boolean`, it indicates whether or not the toady should run headlessly. This function returns our puppeteer page object.
-
- NB: A call to `makePage` is asynchronous and returns a promise, hence the use of the async / await pattern.
-
-`base` then consumes that page instance into an engine which makes use of a technique known as [inversion of control](https://en.wikipedia.org/wiki/Inversion_of_control), to pass sequences of commands (actions) to the Page object.
 
 ## Actions
 
@@ -82,8 +72,6 @@ const logIn = ({ user, password }) => (
 
 await base([goTo(myUrl), ...logIn({ password: 'password', user: 'me123' }), linger()])();
 ```
-
-But I'm not in the habit of telling people how to code if it's not necessary.
 
 ## State 
 
@@ -151,9 +139,6 @@ await app([triggerAction])(middleWare);
 Through the `state` parameter, we have access to the state object.
 
 If the middleware function returns a value, that value will replace the state object being carried along by Toady.
-
-
-
 
 Middleware, therefore, becomes the primary way we can read and update any concept of state we hold on to as our toady processes its instructions. 
 
